@@ -1,0 +1,14 @@
+# TargetPath has no Python backend and no server-side algorithm.
+# server.py only serves the static files (index.html, assets/) over
+# http://localhost using Python's built-in http.server module.
+#
+# No external packages are required to run the application.
+#
+# The lines below are ONLY needed if you want to run the optional jsdom-based
+# UI smoke tests in tests/test_ui_smoke.js and tests/test_ui_live_flow.js.
+# They are Node.js packages (installed with `npm install`), not Python
+# packages, and are not required to run TargetPath itself or its core
+# test suite (tests/test_gbfs.js, tests/test_disease_matrix.js), which use
+# only Node's built-in `assert` module.
+#
+# Node-side optional dev dependency (see package.json): jsdom ^24.0.0

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TargetPath — From Disease to Target to Compound</title>
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button id="brand-btn" class="brand">
+        <span class="brand-mark">TP</span> TargetPath
+      </button>
+      <nav class="topnav">
+        <span>Open Targets</span><span>+</span><span>ChEMBL</span><span>+</span><span>Greedy Best-First Search</span>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- PAGE 1: HOME -->
+    <section id="page-home" class="page">
+      <div class="home">
+        <h1>TargetPath</h1>
+        <p class="subtitle">From Disease to Target to Compound.</p>
+        <p class="desc">
+          Explore disease-associated targets and prioritize compound candidates using
+          biomedical databases and a Greedy Best-First Search over the resulting knowledge graph.
+        </p>
+        <button id="start-btn" class="btn-primary btn-lg">Start Exploration →</button>
+        <div class="chips">
+          <span class="chip">Open Targets</span><span class="plus">+</span>
+          <span class="chip">ChEMBL</span><span class="plus">+</span>
+          <span class="chip">Greedy Best-First Search</span><span class="plus">+</span>
+          <span class="chip">Heuristic Ranking</span>
+        </div>
+        <p class="disclaimer">
+          Rankings are heuristic prioritizations derived from database evidence and
+          user-selected parameters. They are not clinical efficacy claims and do not
+          indicate a "best drug" or "recommended treatment".
+        </p>
+      </div>
+    </section>
+
+    <!-- PAGE 2: EXPLORATION -->
+    <section id="page-exploration" class="page" style="display:none">
+      <div class="container">
+
+        <section class="card">
+          <label class="label" for="disease-input">Disease</label>
+          <div class="row-input">
+            <input id="disease-input" type="text" value="Alzheimer disease" placeholder="e.g. Alzheimer disease" />
+            <button id="run-btn" class="btn-primary">Run Exploration (Live)</button>
+            <button id="demo-btn" class="btn-outline">Run Demo Example</button>
+          </div>
+          <p class="hint">
+            "Run Exploration" calls Open Targets and ChEMBL live. "Run Demo Example" replays a
+            recorded Alzheimer's-disease snapshot through the same Greedy Best-First Search engine —
+            useful when you are offline or want a guaranteed-fast walkthrough. Demo results are always
+            labeled <strong>DEMO</strong> and are never shown as if they were live data.
+          </p>
+        </section>
+
+        <section id="disease-picker" class="card" style="display:none"></section>
+
+        <section id="loader-card" class="card" style="display:none">
+          <ul id="loader-steps" class="loader-steps"></ul>
+        </section>
+
+        <div id="error-box" class="banner banner-error" style="display:none"></div>
+        <div id="demo-box" class="banner banner-warn" style="display:none"></div>
+
+        <div id="results" style="display:none">
+
+          <section class="card">
+            <h2 class="section-title">Disease</h2>
+            <div class="disease-head">
+              <span id="disease-name" class="disease-name"></span>
+              <span id="disease-id" class="mono muted"></span>
+            </div>
+            <span id="disease-source" class="pill"></span>
+          </section>
+
+          <section class="card">
+            <h2 class="section-title">Run Summary</h2>
+            <div id="summary-stats" class="stats-grid"></div>
+            <div id="empty-state" class="hint" style="display:none"></div>
+          </section>
+
+          <section class="card">
+            <h2 class="section-title">Disease-Associated Targets</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th><th>Target</th><th>Target Name</th>
+                    <th>Association Score</th><th>ChEMBL Mapping</th><th>Compounds Found</th>
+                  </tr>
+                </thead>
+                <tbody id="targets-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="skipped-card" class="card" style="display:none">
+            <h2 class="section-title">Targets Skipped (with reasons)</h2>
+            <ul id="skipped-list" class="reason-list"></ul>
+          </section>
+
+          <section class="card">
+            <h2 class="section-title">Search Configuration</h2>
+            <div class="field">
+              <div class="field-label">Search Algorithm</div>
+              <div class="btn-group">
+                <span class="alg-btn active fixed">Greedy Best-First Search</span>
+              </div>
+              <p class="hint">
+                This is the only search algorithm TargetPath uses. It expands the frontier node
+                (target or compound) with the best current heuristic value first — never by
+                insertion order (BFS), by depth (DFS), or by accumulated path cost (UCS).
+              </p>
+            </div>
+
+            <div class="weights-grid">
+              <div>
+                <div class="field-label-row">
+                  <span>Target Relevance Weight (w1)</span>
+                  <span id="w1-value" class="mono">0.50</span>
+                </div>
+                <input id="w1-slider" type="range" min="0" max="1" step="0.05" value="0.5" />
+              </div>
+              <div>
+                <div class="field-label-row">
+                  <span>Bioactivity Weight (w2)</span>
+                  <span id="w2-value" class="mono">0.50</span>
+                </div>
+                <input id="w2-slider" type="range" min="0" max="1" step="0.05" value="0.5" disabled />
+              </div>
+            </div>
+            <p class="hint">w1 + w2 = 1.00 (bioactivity weight is derived automatically)</p>
+
+            <div class="weights-grid" style="margin-top:20px">
+              <div>
+                <div class="field-label-row">
+                  <span>Max targets to explore</span>
+                  <span id="ntarget-value" class="mono">15</span>
+                </div>
+                <input id="ntarget-slider" type="range" min="5" max="30" step="1" value="15" />
+              </div>
+              <div>
+                <div class="field-label-row">
+                  <span>Max compound records per target</span>
+                  <span id="ncompound-value" class="mono">8</span>
+                </div>
+                <input id="ncompound-slider" type="range" min="3" max="15" step="1" value="8" />
+              </div>
+            </div>
+            <label class="checkbox-row">
+              <input type="checkbox" id="include-kd" />
+              Also consider Kd (dissociation constant) records, in addition to IC50 and Ki
+            </label>
+
+            <div class="formula-box mono" id="formula-box"></div>
+            <p class="hint">
+              Heuristic ranking: prioritizes candidates based on target relevance and measured
+              bioactivity. This heuristic is also what drives GBFS's exploration order below —
+              it is the same value, not two separate mechanisms.
+            </p>
+
+            <button id="rerun-btn" class="btn-primary" style="margin-top:16px">Re-run with these settings</button>
+          </section>
+
+          <section class="card">
+            <div class="section-title-row">
+              <h2 class="section-title">Search Graph &amp; Exploration Order (GBFS)</h2>
+              <div class="stats-row" id="search-stats"></div>
+            </div>
+            <div id="graph-container" class="graph-container">
+              <svg id="graph-svg" class="graph-svg"></svg>
+              <div id="graph-disease-row" class="graph-disease-row"></div>
+              <div id="graph-targets-row" class="graph-targets-row"></div>
+            </div>
+            <div class="play-row">
+              <button id="play-btn" class="btn-outline">Play</button>
+              <input id="step-slider" type="range" min="0" max="0" value="0" />
+              <span id="step-label" class="mono step-label"></span>
+            </div>
+            <div id="order-trace" class="order-trace"></div>
+
+            <h3 class="log-title">Step-by-step exploration log</h3>
+            <p class="hint">
+              Each row is one frontier pop: which node was expanded / goal-tested, its heuristic
+              value at the time, and what happened. Rows in red are compounds that entered the
+              frontier but failed the goal test (data-quality filter) when actually examined.
+            </p>
+            <ul id="gbfs-log" class="log-list"></ul>
+          </section>
+
+          <section id="excluded-card" class="card" style="display:none">
+            <h2 class="section-title">Bioactivity Records Excluded From Ranking</h2>
+            <p class="hint">Excluded, not hidden — every exclusion has a stated reason.</p>
+            <ul id="excluded-list" class="reason-list"></ul>
+            <p class="hint" id="excluded-more"></p>
+          </section>
+
+          <section class="card">
+            <h2 class="section-title-lg">Prioritized Research Candidates</h2>
+            <p class="hint">
+              This ranking is a heuristic result derived from database evidence (target association,
+              measured bioactivity) and the parameters you selected. It is not a claim of clinical
+              efficacy, and no compound here is labeled a "best drug" or "recommended treatment".
+              An asterisk (*) marks pActivity values TargetPath derived from value+unit because
+              ChEMBL did not provide a validated pChEMBL value for that record.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Rank</th><th>Compound</th><th>Target</th><th>Activity</th>
+                    <th>Value</th><th>pActivity</th><th>Target Score</th><th>Heuristic Score</th>
+                  </tr>
+                </thead>
+                <tbody id="candidates-tbody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="chart-card" class="card">
+            <h2 class="section-title">Candidate Comparison</h2>
+            <p class="hint">
+              Comparing heuristic score components across the top candidates. This does not indicate
+              clinical superiority of any single compound.
+            </p>
+            <svg id="chart-svg" class="chart-svg"></svg>
+          </section>
+
+          <section class="card">
+            <h2 class="section-title">Data Sources</h2>
+            <div class="chips-flat">
+              <span class="chip">Open Targets — disease-target association</span>
+              <span class="chip">ChEMBL — compound &amp; bioactivity data</span>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- CANDIDATE DETAIL MODAL -->
+  <div id="modal-backdrop" class="modal-backdrop" style="display:none">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <div class="muted" id="modal-rank"></div>
+          <h3 class="mono modal-title" id="modal-compound"></h3>
+        </div>
+        <button id="modal-close" class="modal-close">✕</button>
+      </div>
+      <dl class="modal-dl" id="modal-dl"></dl>
+      <div class="explain-box">
+        <h4>Why was this candidate prioritized?</h4>
+        <p class="hint mono" id="explain-formula"></p>
+        <div class="score-bars" id="score-bars"></div>
+        <p class="hint" style="margin-top:12px">
+          This candidate ranks where it does because of its combination of target relevance
+          and measured bioactivity under the current weights — not because it is asserted to
+          be a superior or clinically effective compound.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/pipeline.js"></script>
+  <script src="assets/ui.js"></script>
+</body>
+</html>
