@@ -9,7 +9,7 @@
 "use strict";
 const assert = require("assert");
 const path = require("path");
-const TP = require(path.join(__dirname, "..", "assets", "pipeline.js"));
+const TP = require(path.join(__dirname, "pipeline.js"));
 
 // ---------------------------------------------------------------------
 // Fixture data: one distinct disease/target/compound set per test case,

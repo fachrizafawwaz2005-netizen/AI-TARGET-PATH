@@ -4,8 +4,8 @@
   "description": "TargetPath - Disease to Target to Compound explorer using Open Targets + ChEMBL, driven by a single Greedy Best-First Search algorithm.",
   "private": true,
   "scripts": {
-    "test": "node tests/test_gbfs.js && node tests/test_disease_matrix.js",
-    "test:ui": "node tests/test_ui_smoke.js && node tests/test_ui_live_flow.js",
+    "test": "node test_gbfs.js && node test_disease_matrix.js",
+    "test:ui": "node test_ui_smoke.js && node test_ui_live_flow.js",
     "test:all": "npm run test && npm run test:ui"
   },
   "devDependencies": {

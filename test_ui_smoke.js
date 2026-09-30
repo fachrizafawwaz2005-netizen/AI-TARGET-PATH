@@ -11,7 +11,7 @@ const path = require("path");
 const { JSDOM } = require("jsdom");
 
 async function main() {
-  const root = path.join(__dirname, "..");
+  const root = __dirname;
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const dom = new JSDOM(html, { runScripts: "dangerously", resources: "usable", url: "http://localhost/index.html" });
   const { window } = dom;
@@ -19,8 +19,8 @@ async function main() {
   // jsdom doesn't implement requestAnimationFrame by default.
   window.requestAnimationFrame = (cb) => setTimeout(cb, 0);
 
-  const pipelineSrc = fs.readFileSync(path.join(root, "assets", "pipeline.js"), "utf8");
-  const uiSrc = fs.readFileSync(path.join(root, "assets", "ui.js"), "utf8");
+  const pipelineSrc = fs.readFileSync(path.join(root, "pipeline.js"), "utf8");
+  const uiSrc = fs.readFileSync(path.join(root, "ui.js"), "utf8");
   window.eval(pipelineSrc);
   window.eval(uiSrc);
 

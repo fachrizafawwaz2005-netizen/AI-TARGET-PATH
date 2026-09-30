@@ -8,7 +8,7 @@
 "use strict";
 const assert = require("assert");
 const path = require("path");
-const TP = require(path.join(__dirname, "..", "assets", "pipeline.js"));
+const TP = require(path.join(__dirname, "pipeline.js"));
 
 let passed = 0;
 let failed = 0;

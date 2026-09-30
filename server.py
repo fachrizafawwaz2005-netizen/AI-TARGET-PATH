@@ -5,9 +5,9 @@ TargetPath static server.
 TargetPath has NO Python backend and NO server-side algorithm: every part of
 the pipeline (disease search, Open Targets calls, ChEMBL calls, the Greedy
 Best-First Search itself, and ranking) runs as plain JavaScript directly in
-your browser (see assets/pipeline.js).
+your browser (see pipeline.js).
 
-The only job of this script is to serve index.html and assets/ over
+The only job of this script is to serve index.html and  over
 http://localhost so the browser doesn't hit file:// CORS restrictions that
 some browsers apply to fetch(). This uses ONLY the Python standard library
 - nothing needs to be installed (see requirements.txt).

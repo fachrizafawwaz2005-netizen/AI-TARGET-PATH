@@ -14,7 +14,7 @@ function otSearchResponse(hits) {
 }
 
 async function setup() {
-  const root = path.join(__dirname, "..");
+  const root = __dirname;
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const dom = new JSDOM(html, { runScripts: "dangerously", resources: "usable", url: "http://localhost/index.html" });
   const { window } = dom;
@@ -41,8 +41,8 @@ async function testAmbiguousDiseasePicker() {
     return { ok: false, status: 404, json: async () => ({}) };
   };
 
-  window.eval(fs.readFileSync(path.join(__dirname, "..", "assets", "pipeline.js"), "utf8"));
-  window.eval(fs.readFileSync(path.join(__dirname, "..", "assets", "ui.js"), "utf8"));
+  window.eval(fs.readFileSync(path.join(__dirname, "pipeline.js"), "utf8"));
+  window.eval(fs.readFileSync(path.join(__dirname, "ui.js"), "utf8"));
   await new Promise((r) => setTimeout(r, 20));
 
   const doc = window.document;
@@ -81,8 +81,8 @@ async function testStageTaggedError() {
   const { window } = await setup();
   window.fetch = async () => ({ ok: false, status: 503, json: async () => ({}) });
 
-  window.eval(fs.readFileSync(path.join(__dirname, "..", "assets", "pipeline.js"), "utf8"));
-  window.eval(fs.readFileSync(path.join(__dirname, "..", "assets", "ui.js"), "utf8"));
+  window.eval(fs.readFileSync(path.join(__dirname, "pipeline.js"), "utf8"));
+  window.eval(fs.readFileSync(path.join(__dirname, "ui.js"), "utf8"));
   await new Promise((r) => setTimeout(r, 20));
 
   const doc = window.document;

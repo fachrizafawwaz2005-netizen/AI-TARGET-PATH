@@ -10,9 +10,9 @@ static web app:
 ```
 targetpath-static/
   index.html
-  assets/pipeline.js   <- all "backend" logic (Open Targets + ChEMBL calls, ranking)
-  assets/ui.js         <- rendering / DOM interaction
-  assets/style.css
+  pipeline.js   <- all "backend" logic (Open Targets + ChEMBL calls, ranking)
+  ui.js         <- rendering / DOM interaction
+  style.css
 ```
 
 There is no Python backend anywhere in the ZIP — every API call already happened
@@ -125,7 +125,7 @@ click "Run Demo Example".
 `api.platform.opentargets.org` or `www.ebi.ac.uk`**, so no live API call
 could be made from here. What was actually run:
 
-- `tests/test_gbfs.js` — 21 unit tests against **mocked** fetch responses,
+- `test_gbfs.js` — 21 unit tests against **mocked** fetch responses,
   covering: unit conversion, heuristic math (incl. clamping and the
   optimistic-bound property), the full quality/goal-test matrix (accept,
   wrong type, wrong relation, flagged validity, Kd on/off), disease
@@ -136,7 +136,7 @@ could be made from here. What was actually run:
   target-mapping failure being recorded with a reason, a compound
   entering the frontier and then failing the goal test at pop time, and
   stage-tagged error propagation. **All 21 passed.**
-- `tests/test_disease_matrix.js` — runs the full `explore()` pipeline
+- `test_disease_matrix.js` — runs the full `explore()` pipeline
   end-to-end against distinct mocked fixtures for the 5 required diseases
   (Alzheimer disease, Parkinson disease, Type 2 diabetes mellitus, Breast
   cancer, Epilepsy), asserting the correct EFO id, correct target-mapping
@@ -144,7 +144,7 @@ could be made from here. What was actually run:
   bioactivity" case renders 0 candidates rather than fabricated ones, and
   that no other disease leaks the Alzheimer fixture's compound.
   **All 5 passed.**
-- `tests/test_ui_smoke.js` and `tests/test_ui_live_flow.js` — jsdom-based
+- `test_ui_smoke.js` and `test_ui_live_flow.js` — jsdom-based
   tests that load the real `index.html`/`pipeline.js`/`ui.js` and drive
   the actual DOM: Demo Mode end-to-end rendering, the ambiguous-disease
   picker appearing and being clickable, and a mocked Open Targets outage
@@ -164,8 +164,8 @@ will tell you which stage failed.
 
 Run the no-dependency test suite yourself:
 ```
-node tests/test_gbfs.js
-node tests/test_disease_matrix.js
+node test_gbfs.js
+node test_disease_matrix.js
 # or:
 npm test
 ```
@@ -194,22 +194,22 @@ the reliable option.
 
 ```
 index.html              Single-page app shell
-assets/pipeline.js      Open Targets + ChEMBL calls, GBFS engine, heuristic, quality filter
-assets/ui.js            DOM rendering / interaction (no algorithm logic here)
-assets/style.css        Original visual design, extended with a few new components
+pipeline.js      Open Targets + ChEMBL calls, GBFS engine, heuristic, quality filter
+ui.js            DOM rendering / interaction (no algorithm logic here)
+style.css        Original visual design, extended with a few new components
 server.py               Stdlib-only static file server (the "run" mechanism)
 run.bat                 Windows launcher (checks Python, runs server.py, opens browser)
 requirements.txt        States that no external packages are required
 package.json            npm test scripts for the Node-based test suite (optional)
-tests/test_gbfs.js               Unit tests (no dependencies)
-tests/test_disease_matrix.js     5-disease integration test (no dependencies)
-tests/test_ui_smoke.js           jsdom UI test (optional, needs `npm install`)
-tests/test_ui_live_flow.js       jsdom UI test (optional, needs `npm install`)
+test_gbfs.js               Unit tests (no dependencies)
+test_disease_matrix.js     5-disease integration test (no dependencies)
+test_ui_smoke.js           jsdom UI test (optional, needs `npm install`)
+test_ui_live_flow.js       jsdom UI test (optional, needs `npm install`)
 README.md               This file
 ```
 
-No files from the original ZIP were deleted — `index.html`, `assets/pipeline.js`,
-`assets/ui.js`, and `assets/style.css` were rewritten in place; nothing else existed.
+No files from the original ZIP were deleted — `index.html`, `pipeline.js`,
+`ui.js`, and `style.css` were rewritten in place; nothing else existed.
 
 ## 8. Known limitations / not yet verified
 
